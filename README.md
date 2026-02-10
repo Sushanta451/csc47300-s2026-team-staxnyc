@@ -20,7 +20,6 @@ Tech stack:
 
 Features
 
-
 -Feature 1: Player Search Page
 
 The homepage has a search bar where users type a player's name and see matching results in
