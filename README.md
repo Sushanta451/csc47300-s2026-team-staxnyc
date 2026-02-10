@@ -40,23 +40,35 @@ generate predictions when requested.
 
 
 1. Backend Setup
-bashcd backend
-pip install -r requirements.txt
-python app.py
-Backend runs at http://localhost:5000
 
-2. Frontend Setup
-Open a new terminal:
-bashcd frontend
-npm install
-npm start
-Website opens at http://localhost:3000
+-bashcd backend
+
+-pip install -r requirements.txt
+
+-python app.py
+
+-Backend runs at http://localhost:5000
+
+3. Frontend Setup
+
+-bashcd frontend
+
+-npm install
+
+-npm start
+
+-Website opens at http://localhost:3000
+
 
 3) Database Setup
-Go to supabase.com and sign up
-Create a new project
-Copy your connection string
-Add it to backend/.env
+
+-Go to supabase.com and sign up
+
+-Create a new project
+
+-Copy your connection string
+
+-Add it to backend/.env
 
 
 
