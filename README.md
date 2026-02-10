@@ -80,9 +80,13 @@ generate predictions when requested.
 
 Team Members
 
+
 Person 1 - Frontend (React)
+
 Person 2 - Backend (Flask/Database)
+
 Person 3 - Machine Learning
+
 Person 4 - Deployment/Documentation
 
 
