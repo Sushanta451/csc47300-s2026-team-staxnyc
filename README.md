@@ -1,6 +1,6 @@
  NBA Player Performance Predictor
 
- 📘 Project Description  
+ Project Description  
 A website that predicts how many points an NBA player will score in their next game using machine 
 learning. Users search for any player, view their recent game stats, and get instant predictions 
 based on their performance trends. The site uses React for the frontend, Python/Flask for the 
