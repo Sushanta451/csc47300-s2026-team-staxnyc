@@ -39,20 +39,25 @@ generate predictions when requested.
 
 
 
-\#\# 📄 Additional Information  
-Optionally include:  
-\- Installation or setup instructions    
-\- Example usage    
-\- Contributors or acknowledgments    
-\- License details  
+1. Backend Setup
+bashcd backend
+pip install -r requirements.txt
+python app.py
+Backend runs at http://localhost:5000
 
+2. Frontend Setup
+Open a new terminal:
+bashcd frontend
+npm install
+npm start
+Website opens at http://localhost:3000
 
+3) Database Setup
+Go to supabase.com and sign up
+Create a new project
+Copy your connection string
+Add it to backend/.env
 
-How to Use the Website
--Open the website in your browser
--Type a player name in the search box
--Click on the player
--See their stats and prediction
 
 
 Team Members
