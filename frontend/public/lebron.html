@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeBron James | Player Profile | NBA Predictor</title>
+
+  <!-- Google Font (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/player.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav-content">
+      <div class="brand">
+        <div class="brand-badge">🏀</div>
+        <span>StaxNYC Predictor</span>
+      </div>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="index.html#players" class="active">Players</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <p class="breadcrumb">Players / Western Conference / <span>LeBron James</span></p>
+    </section>
+
+    <section class="profile-layout">
+      <article class="card player-hero">
+        <div class="hero-top"></div>
+
+        <div class="hero-body">
+          <div class="player-main">
+            <div class="player-avatar">
+              <img src="images/lebron.png" alt="LeBron James profile picture" />
+            </div>
+
+            <div class="player-info">
+              <div class="player-name-row">
+                <h1 class="player-name">LeBron James</h1>
+                <span class="team-pill">
+                  <span class="team-dot" style="background: #f97316; box-shadow: 0 0 12px rgba(249, 115, 22, 0.75);"></span>
+                  Los Angeles Lakers
+                </span>
+              </div>
+
+              <div class="player-meta">
+                <span>SF / PF</span>
+                <span>Age 40</span>
+                <span>6'9" • 250 lbs</span>
+                <span>#23</span>
+              </div>
+
+              <div class="player-tags">
+                <span class="tag">Playmaker</span>
+                <span class="tag">3-Level Scorer</span>
+                <span class="tag">Transition Threat</span>
+                <span class="tag">High IQ</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <p class="stat-label">PPG</p>
+              <p class="stat-value">24.8</p>
+              <p class="stat-change">▲ +2.1 last 10</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">RPG</p>
+              <p class="stat-value">6.3</p>
+              <p class="stat-change">▲ +0.7 trend</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">APG</p>
+              <p class="stat-value">4.9</p>
+              <p class="stat-change">▲ +1.0 playmaking</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">FG%</p>
+              <p class="stat-value">47.2%</p>
+              <p class="stat-change down">▼ -0.8% last 5</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="side-stack">
+        <section class="card panel prediction-card">
+          <h3>Next Game Prediction</h3>
+          <p class="prediction-sub">Projected points for next game</p>
+          <p class="prediction-sub">Range: 22 – 33 points</p>
+
+          <div class="confidence-row">
+            <div class="confidence-label">
+              <span>Model Confidence</span>
+              <span>84%</span>
+            </div>
+
+            <div class="progress" aria-label="Model confidence progress bar">
+              <div class="progress-bar" style="width: 84%;"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card panel">
+          <h3>Game Context</h3>
+
+          <div class="matchup-list">
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Opponent Defense Rank</p>
+                <p class="matchup-sub">Perimeter defense</p>
+              </div>
+              <span class="pill">18th</span>
+            </div>
+
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Expected Minutes</p>
+                <p class="matchup-sub">Rotation estimate</p>
+              </div>
+              <span class="pill">35–37</span>
+            </div>
+
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Usage Trend</p>
+                <p class="matchup-sub">Last 10 games</p>
+              </div>
+              <span class="pill">High</span>
+            </div>
+
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Game Pace</p>
+                <p class="matchup-sub">Projected possessions</p>
+              </div>
+              <span class="pill">Fast</span>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="lower-grid">
+      <article class="card section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Recent Points Trend</h2>
+            <p class="section-note">Last 10 games (mock data for design preview)</p>
+          </div>
+          <span class="pill">Avg 26.1</span>
+        </div>
+
+        <div class="chart" aria-label="Recent points trend chart">
+          <div class="bar-wrap">
+            <div class="bar" style="height: 56%;"></div>
+            <div class="bar-value">19</div>
+            <div class="bar-label">G1</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 68%;"></div>
+            <div class="bar-value">23</div>
+            <div class="bar-label">G2</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 76%;"></div>
+            <div class="bar-value">26</div>
+            <div class="bar-label">G3</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 62%;"></div>
+            <div class="bar-value">21</div>
+            <div class="bar-label">G4</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 88%;"></div>
+            <div class="bar-value">30</div>
+            <div class="bar-label">G5</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 72%;"></div>
+            <div class="bar-value">25</div>
+            <div class="bar-label">G6</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 95%;"></div>
+            <div class="bar-value">33</div>
+            <div class="bar-label">G7</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 80%;"></div>
+            <div class="bar-value">27</div>
+            <div class="bar-label">G8</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 74%;"></div>
+            <div class="bar-value">24</div>
+            <div class="bar-label">G9</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 90%;"></div>
+            <div class="bar-value">31</div>
+            <div class="bar-label">G10</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Recent Games</h2>
+            <p class="section-note">Last 5 games</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-label="Recent games table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Opp</th>
+                <th>PTS</th>
+                <th>REB</th>
+                <th>AST</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>02/20</td>
+                <td>BOS</td>
+                <td>31</td>
+                <td>7</td>
+                <td>5</td>
+                <td class="result-win">W</td>
+              </tr>
+
+              <tr>
+                <td>02/18</td>
+                <td>MIA</td>
+                <td>24</td>
+                <td>5</td>
+                <td>6</td>
+                <td class="result-loss">L</td>
+              </tr>
+
+              <tr>
+                <td>02/16</td>
+                <td>PHI</td>
+                <td>27</td>
+                <td>8</td>
+                <td>4</td>
+                <td class="result-win">W</td>
+              </tr>
+
+              <tr>
+                <td>02/13</td>
+                <td>CHI</td>
+                <td>33</td>
+                <td>6</td>
+                <td>3</td>
+                <td class="result-win">W</td>
+              </tr>
+
+              <tr>
+                <td>02/11</td>
+                <td>ATL</td>
+                <td>25</td>
+                <td>4</td>
+                <td>7</td>
+                <td class="result-loss">L</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      LeBron James Player Prediction Page
+    </footer>
+  </main>
+
+  <script src="js/players.js"></script>
+</body>
+</html>

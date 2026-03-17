@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kyrie Irving | Player Profile | NBA Predictor</title>
+
+  <!-- Google Font (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/player.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav-content">
+      <div class="brand">
+        <div class="brand-badge">🏀</div>
+        <span>StaxNYC Predictor</span>
+      </div>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="index.html#players" class="active">Players</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <p class="breadcrumb">Players / Western Conference / <span>Kyrie Irving</span></p>
+    </section>
+
+    <section class="profile-layout">
+      <article class="card player-hero">
+        <div class="hero-top"></div>
+
+        <div class="hero-body">
+          <div class="player-main">
+            <div class="player-avatar">
+              <img src="images/kyrie.png" alt="Kyrie Irving profile picture" />
+            </div>
+
+            <div class="player-info">
+              <div class="player-name-row">
+                <h1 class="player-name">Kyrie Irving</h1>
+                <span class="team-pill">
+                  <span class="team-dot" style="background: #0053bc; box-shadow: 0 0 12px rgba(0, 83, 188, 0.75);"></span>
+                  Dallas Mavericks
+                </span>
+              </div>
+
+              <div class="player-meta">
+                <span>PG / SG</span>
+                <span>Age 32</span>
+                <span>6'2" • 195 lbs</span>
+                <span>#11</span>
+              </div>
+
+              <div class="player-tags">
+                <span class="tag">Elite Ball Handle</span>
+                <span class="tag">Shot Creator</span>
+                <span class="tag">Clutch Scorer</span>
+                <span class="tag">Finishing</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <p class="stat-label">PPG</p>
+              <p class="stat-value">26.1</p>
+              <p class="stat-change">▲ +1.8 last 10</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">RPG</p>
+              <p class="stat-value">5.0</p>
+              <p class="stat-change">▲ +0.4 trend</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">APG</p>
+              <p class="stat-value">5.4</p>
+              <p class="stat-change">▲ +0.9 playmaking</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">FG%</p>
+              <p class="stat-value">49.1%</p>
+              <p class="stat-change">▲ +1.2% last 5</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="side-stack">
+        <section class="card panel prediction-card">
+          <h3>Next Game Prediction</h3>
+          <p class="prediction-sub">Projected points for next game</p>
+          <p class="prediction-number">28.7</p>
+          <p class="prediction-sub">Range: 23 – 35 points</p>
+
+          <div class="confidence-row">
+            <div class="confidence-label">
+              <span>Model Confidence</span>
+              <span>86%</span>
+            </div>
+
+            <div class="progress" aria-label="Model confidence progress bar">
+              <div class="progress-bar" style="width: 86%;"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card panel">
+          <h3>Game Context</h3>
+
+          <div class="matchup-list">
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Opponent Guard Defense Rank</p>
+                <p class="matchup-sub">Backcourt matchup</p>
+              </div>
+              <span class="pill">21st</span>
+            </div>
+
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Expected Minutes</p>
+                <p class="matchup-sub">Rotation estimate</p>
+              </div>
+              <span class="pill">36–38</span>
+            </div>
+
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Usage Trend</p>
+                <p class="matchup-sub">Last 10 games</p>
+              </div>
+              <span class="pill">Very High</span>
+            </div>
+
+            <div class="matchup-item">
+              <div>
+                <p class="matchup-title">Game Pace</p>
+                <p class="matchup-sub">Projected possessions</p>
+              </div>
+              <span class="pill">Medium-Fast</span>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="lower-grid">
+      <article class="card section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Recent Points Trend</h2>
+            <p class="section-note">Last 10 games (mock data for design preview)</p>
+          </div>
+          <span class="pill">Avg 27.2</span>
+        </div>
+
+        <div class="chart" aria-label="Recent points trend chart">
+          <div class="bar-wrap">
+            <div class="bar" style="height: 60%;"></div>
+            <div class="bar-value">21</div>
+            <div class="bar-label">G1</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 82%;"></div>
+            <div class="bar-value">29</div>
+            <div class="bar-label">G2</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 70%;"></div>
+            <div class="bar-value">25</div>
+            <div class="bar-label">G3</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 90%;"></div>
+            <div class="bar-value">32</div>
+            <div class="bar-label">G4</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 76%;"></div>
+            <div class="bar-value">27</div>
+            <div class="bar-label">G5</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 86%;"></div>
+            <div class="bar-value">30</div>
+            <div class="bar-label">G6</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 66%;"></div>
+            <div class="bar-value">23</div>
+            <div class="bar-label">G7</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 95%;"></div>
+            <div class="bar-value">34</div>
+            <div class="bar-label">G8</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 74%;"></div>
+            <div class="bar-value">26</div>
+            <div class="bar-label">G9</div>
+          </div>
+
+          <div class="bar-wrap">
+            <div class="bar" style="height: 88%;"></div>
+            <div class="bar-value">31</div>
+            <div class="bar-label">G10</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card section-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Recent Games</h2>
+            <p class="section-note">Last 5 games</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-label="Recent games table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Opp</th>
+                <th>PTS</th>
+                <th>REB</th>
+                <th>AST</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>02/21</td>
+                <td>PHX</td>
+                <td>31</td>
+                <td>4</td>
+                <td>6</td>
+                <td class="result-win">W</td>
+              </tr>
+
+              <tr>
+                <td>02/19</td>
+                <td>DEN</td>
+                <td>26</td>
+                <td>5</td>
+                <td>7</td>
+                <td class="result-loss">L</td>
+              </tr>
+
+              <tr>
+                <td>02/17</td>
+                <td>SAC</td>
+                <td>34</td>
+                <td>3</td>
+                <td>5</td>
+                <td class="result-win">W</td>
+              </tr>
+
+              <tr>
+                <td>02/14</td>
+                <td>GSW</td>
+                <td>23</td>
+                <td>6</td>
+                <td>8</td>
+                <td class="result-win">W</td>
+              </tr>
+
+              <tr>
+                <td>02/12</td>
+                <td>LAC</td>
+                <td>29</td>
+                <td>4</td>
+                <td>4</td>
+                <td class="result-loss">L</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      Kyrie Irving Player Prediction Page
+    </footer>
+  </main>
+
+  <script src="js/players.js"></script>
+</body>
+</html>
