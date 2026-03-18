@@ -56,13 +56,11 @@ generate predictions when requested.
 
 3. Frontend Setup
 
--bashcd frontend
+-cd frontend
 
--npm install
+-python3 -m http.server 8000
 
--npm start
-
--Website opens at http://localhost:3000
+-Website opens at http://localhost:8000/home.html
 
 
 3) Database Setup

@@ -1,6 +1,4 @@
-/* ========================================
-   HERO SECTION
-   ======================================== */
+/* Hero */
 .hero {
   padding: 3rem 0 1.5rem;
 }
@@ -24,9 +22,7 @@
   max-width: 720px;
 }
 
-/* ========================================
-   SEARCH BAR
-   ======================================== */
+/* Search bar */
 .search {
   margin-top: 1rem;
 }
@@ -85,9 +81,31 @@
   color: #ffb4b4;
 }
 
-/* ========================================
-   FEATURED PLAYERS SECTION
-   ======================================== */
+/* Suggestions dropdown */
+.suggestions {
+  margin-top: 0.5rem;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.suggestion-item {
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  transition: background 0.2s ease;
+}
+
+.suggestion-item + .suggestion-item {
+  border-top: none;
+}
+
+.suggestion-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Featured players */
 .players-section {
   padding: 1rem 0 2rem;
 }
@@ -168,35 +186,7 @@
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
 }
 
-/* ========================================
-   SEARCH SUGGESTIONS DROPDOWN
-   ======================================== */
-.suggestions {
-  margin-top: 0.5rem;
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-.suggestion-item {
-  padding: 0.75rem 0.9rem;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  transition: background 0.2s ease;
-}
-
-.suggestion-item + .suggestion-item {
-  border-top: none;
-}
-
-.suggestion-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* ========================================
-   RESPONSIVE STYLES
-   ======================================== */
+/* Responsive */
 @media (max-width: 760px) {
   .nav-links {
     display: none;

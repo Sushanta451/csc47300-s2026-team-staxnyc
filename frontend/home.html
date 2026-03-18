@@ -13,9 +13,8 @@
     rel="stylesheet"
   />
 
-  <!-- Stylesheets -->
   <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="css/home.css" />
 </head>
 <body>
   <header class="navbar">
@@ -26,7 +25,7 @@
       </div>
 
       <nav class="nav-links" aria-label="Main navigation">
-        <a href="index.html" class="active">Home</a>
+        <a href="home.html" class="active">Home</a>
         <a href="#players">Players</a>
       </nav>
     </div>
@@ -73,7 +72,7 @@
             <p>Los Angeles Lakers • SF / PF</p>
 
             <div class="btn-row">
-              <a class="btn primary" href="lebron.html">View Profile</a>
+              <a class="btn primary" href="player.html?id=lebron">View Profile</a>
             </div>
           </div>
         </article>
@@ -88,7 +87,36 @@
             <p>Dallas Mavericks • PG / SG</p>
 
             <div class="btn-row">
-              <a class="btn primary" href="kyrie.html">View Profile</a>
+              <a class="btn primary" href="player.html?id=kyrie">View Profile</a>
+            </div>
+          </div>
+        </article>
+        <article class="player-card">
+          <div class="player-image">
+            <img src="images/ja.png" alt="Ja Morant" />
+          </div>
+
+          <div class="player-content">
+            <h3>Ja Morant</h3>
+            <p>Memphis Grizzlies • PG</p>
+
+            <div class="btn-row">
+              <a class="btn primary" href="player.html?id=ja">View Profile</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="player-card">
+          <div class="player-image">
+            <img src="images/harden.png" alt="James Harden" />
+          </div>
+
+          <div class="player-content">
+            <h3>James Harden</h3>
+            <p>Los Angeles Clippers • PG / SG</p>
+
+            <div class="btn-row">
+              <a class="btn primary" href="player.html?id=harden">View Profile</a>
             </div>
           </div>
         </article>
@@ -100,7 +128,6 @@
     </footer>
   </main>
 
-  <script src="js/players.js"></script>
   <script src="js/search.js"></script>
 </body>
 </html>

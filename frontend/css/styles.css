@@ -1,14 +1,12 @@
-/* ========================================
-   RESET / GLOBAL STYLES
-   ======================================== */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Theme colors and shared values */
 :root {
-  /* Color palette */
   --bg: #0b1020;
   --panel: rgba(255, 255, 255, 0.06);
   --panel-border: rgba(255, 255, 255, 0.12);
@@ -19,8 +17,6 @@
   --success: #2dd4bf;
   --warning: #f59e0b;
   --danger: #ef4444;
-
-  /* UI styling */
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
   --radius: 18px;
 }
@@ -38,8 +34,8 @@ body {
 }
 
 a {
-  text-decoration: none;
   color: inherit;
+  text-decoration: none;
 }
 
 img {
@@ -52,9 +48,7 @@ img {
   margin: 0 auto;
 }
 
-/* ========================================
-   NAVBAR
-   ======================================== */
+/* Navbar */
 .navbar {
   position: sticky;
   top: 0;
@@ -111,9 +105,7 @@ img {
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* ========================================
-   FOOTER
-   ======================================== */
+/* Footer */
 .footer {
   text-align: center;
   color: var(--muted);
