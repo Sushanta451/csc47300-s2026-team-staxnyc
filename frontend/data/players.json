@@ -87,7 +87,7 @@
     "number": 12,
     "teamColor": "#5d76a9",
     "teamGlow": "rgba(93, 118, 169, 0.75)",
-    "image": "images/ja.png",
+    "image": "images/JaMorant.png",
     "tags": ["Explosive Athlete", "Finisher", "Playmaker", "Transition Threat"],
     "stats": { "ppg": "21.3", "rpg": "4.7", "apg": "8.1", "fgp": "45.8%" },
     "statChanges": {
@@ -125,7 +125,7 @@
     "number": 1,
     "teamColor": "#c8102e",
     "teamGlow": "rgba(200, 16, 46, 0.75)",
-    "image": "images/harden.png",
+    "image": "images/JamesHarden.png",
     "tags": ["Step-Back King", "Playmaker", "Free Throw Magnet", "High Usage"],
     "stats": { "ppg": "21.8", "rpg": "5.5", "apg": "8.6", "fgp": "43.5%" },
     "statChanges": {
