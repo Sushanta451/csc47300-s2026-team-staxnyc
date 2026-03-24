@@ -58,9 +58,13 @@ generate predictions when requested.
 
 -cd frontend
 
--python3 -m http.server 8000
+-npm install (installs node_modules and dependencies)
 
--Website opens at http://localhost:8000/home.html
+-npm start (builds TypeScript and starts the server)
+
+-Website opens at http://localhost:8080/home.html
+
+-To stop the server press Ctrl + C
 
 
 3) Database Setup

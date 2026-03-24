@@ -1,17 +1,63 @@
-// Get the player ID from the URL (e.g. player.html?id=lebron)
-var container = document.getElementById("player-content");
-var params = new URLSearchParams(window.location.search);
-var playerId = params.get("id");
+interface StatChange {
+  text: string;
+  down?: boolean;
+}
+
+interface Game {
+  date: string;
+  opp: string;
+  pts: number;
+  reb: number;
+  ast: number;
+  result: string;
+}
+
+interface ContextItem {
+  title: string;
+  sub: string;
+  value: string;
+}
+
+interface Prediction {
+  points: number | null;
+  range: string;
+  confidence: number;
+}
+
+interface Player {
+  id: string;
+  name: string;
+  conference: string;
+  image: string;
+  team: string;
+  teamColor: string;
+  teamGlow: string;
+  position: string;
+  age: number;
+  height: string;
+  weight: string;
+  number: number;
+  tags: string[];
+  stats: { ppg: string; rpg: string; apg: string; fgp: string };
+  statChanges: { [key: string]: string | StatChange };
+  chartPoints: number[];
+  avgPoints: number;
+  games: Game[];
+  context: ContextItem[];
+  prediction: Prediction;
+}
+
+var container: HTMLElement = document.getElementById("player-content") as HTMLElement;
+var params: URLSearchParams = new URLSearchParams(window.location.search);
+var playerId: string | null = params.get("id");
 
 if (!playerId) {
   container.innerHTML = '<p style="color:var(--muted);padding:4rem 0;text-align:center;">No player specified.</p>';
 } else {
-  // Fetch all player data from JSON file
   fetch("data/players.json")
-    .then(function (res) { return res.json(); })
-    .then(function (players) {
-      // Find the player that matches the URL id
-      var player = players.find(function (p) { return p.id === playerId; });
+    .then(function (res: Response): Promise<Player[]> { return res.json(); })
+    .then(function (players: Player[]): void {
+      var player: Player | undefined = players.find(function (p: Player): boolean { return p.id === playerId; });
 
       if (!player) {
         container.innerHTML = '<p style="color:var(--muted);padding:4rem 0;text-align:center;">Player not found.</p>';
@@ -21,30 +67,27 @@ if (!playerId) {
       document.title = player.name + " | Player Profile | NBA Predictor";
       renderPlayer(player);
     })
-    .catch(function () {
+    .catch(function (): void {
       container.innerHTML = '<p style="color:var(--danger);padding:4rem 0;text-align:center;">Failed to load player data.</p>';
     });
 }
 
-// Renders the full player profile page
-function renderPlayer(p) {
-  var maxPts = Math.max.apply(null, p.chartPoints);
+function renderPlayer(p: Player): void {
+  var maxPts: number = Math.max.apply(null, p.chartPoints);
 
-  // Returns the HTML for a stat change indicator (green up or red down arrow)
-  function getStatChangeHTML(key) {
-    var change = p.statChanges[key];
+  function getStatChangeHTML(key: string): string {
+    var change: string | StatChange = p.statChanges[key];
     if (typeof change === "object") {
-      var downClass = change.down ? " down" : "";
+      var downClass: string = change.down ? " down" : "";
       return '<p class="stat-change' + downClass + '">' + change.text + '</p>';
     }
     return '<p class="stat-change">' + change + '</p>';
   }
 
-  // Build the bar chart - each bar height is a percentage of the max score
-  var barsHTML = "";
-  for (var i = 0; i < p.chartPoints.length; i++) {
-    var pts = p.chartPoints[i];
-    var pct = Math.round((pts / maxPts) * 100);
+  var barsHTML: string = "";
+  for (var i: number = 0; i < p.chartPoints.length; i++) {
+    var pts: number = p.chartPoints[i];
+    var pct: number = Math.round((pts / maxPts) * 100);
     barsHTML += '<div class="bar-wrap">' +
       '<div class="bar" style="height: ' + pct + '%;"></div>' +
       '<div class="bar-value">' + pts + '</div>' +
@@ -52,11 +95,10 @@ function renderPlayer(p) {
       '</div>';
   }
 
-  // Build game log table rows
-  var rowsHTML = "";
-  for (var i = 0; i < p.games.length; i++) {
-    var g = p.games[i];
-    var resultClass = g.result === "W" ? "result-win" : "result-loss";
+  var rowsHTML: string = "";
+  for (var i: number = 0; i < p.games.length; i++) {
+    var g: Game = p.games[i];
+    var resultClass: string = g.result === "W" ? "result-win" : "result-loss";
     rowsHTML += '<tr>' +
       '<td>' + g.date + '</td>' +
       '<td>' + g.opp + '</td>' +
@@ -67,28 +109,24 @@ function renderPlayer(p) {
       '</tr>';
   }
 
-  // Build player skill tags
-  var tagsHTML = "";
-  for (var i = 0; i < p.tags.length; i++) {
+  var tagsHTML: string = "";
+  for (var i: number = 0; i < p.tags.length; i++) {
     tagsHTML += '<span class="tag">' + p.tags[i] + '</span>';
   }
 
-  // Build game context items (opponent defense, minutes, etc.)
-  var contextHTML = "";
-  for (var i = 0; i < p.context.length; i++) {
-    var c = p.context[i];
+  var contextHTML: string = "";
+  for (var i: number = 0; i < p.context.length; i++) {
+    var c: ContextItem = p.context[i];
     contextHTML += '<div class="matchup-item">' +
       '<div><p class="matchup-title">' + c.title + '</p><p class="matchup-sub">' + c.sub + '</p></div>' +
       '<span class="pill">' + c.value + '</span></div>';
   }
 
-  // Only show prediction number if it exists
-  var predNumberHTML = "";
+  var predNumberHTML: string = "";
   if (p.prediction.points !== null) {
     predNumberHTML = '<p class="prediction-number">' + p.prediction.points + '</p>';
   }
 
-  // Put together the full page HTML
   container.innerHTML =
     '<section class="page-header">' +
       '<p class="breadcrumb">Players / ' + p.conference + ' Conference / <span>' + p.name + '</span></p>' +
