@@ -140,14 +140,14 @@ const StandingsApp = (): any => {
           <table aria-label="NBA team standings table">
             <thead>
               <tr>
-                <th>Rank</th>
-                <th>Team</th>
-                <th>W</th>
-                <th>L</th>
-                <th>PCT</th>
-                <th>GB</th>
-                <th>Streak</th>
-                <th>Last 10</th>
+                <th title="Position in the conference standings">Rank</th>
+                <th title="NBA franchise">Team</th>
+                <th title="Wins">W</th>
+                <th title="Losses">L</th>
+                <th title="Win percentage (wins divided by games played)">PCT</th>
+                <th title="Games behind the first-place team in the conference">GB</th>
+                <th title="Current winning (W) or losing (L) streak">Streak</th>
+                <th title="Win–loss record over the last 10 games">Last 10</th>
               </tr>
             </thead>
             <tbody>{renderBody()}</tbody>
