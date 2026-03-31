@@ -1,0 +1,23 @@
+const standings = [
+  { rank:1, conference:"East", team:"Boston Celtics", wins:52, losses:18, pct:0.743, gb:0, streak:"W3", last10:"8-2" },
+  { rank:2, conference:"East", team:"Milwaukee Bucks", wins:47, losses:23, pct:0.671, gb:5, streak:"L1", last10:"6-4" },
+  { rank:3, conference:"East", team:"Cleveland Cavaliers", wins:44, losses:26, pct:0.629, gb:8, streak:"W2", last10:"7-3" },
+  { rank:4, conference:"East", team:"New York Knicks", wins:42, losses:28, pct:0.600, gb:10, streak:"W1", last10:"6-4" },
+  { rank:5, conference:"East", team:"Philadelphia 76ers", wins:41, losses:29, pct:0.586, gb:11, streak:"L2", last10:"5-5" },
+  { rank:6, conference:"East", team:"Miami Heat", wins:40, losses:30, pct:0.571, gb:12, streak:"W2", last10:"6-4" },
+  { rank:7, conference:"East", team:"Indiana Pacers", wins:38, losses:32, pct:0.543, gb:14, streak:"L1", last10:"5-5" },
+  { rank:8, conference:"East", team:"Orlando Magic", wins:37, losses:33, pct:0.529, gb:15, streak:"W1", last10:"6-4" },
+  { rank:9, conference:"East", team:"Chicago Bulls", wins:33, losses:37, pct:0.471, gb:19, streak:"L1", last10:"4-6" },
+  { rank:10, conference:"East", team:"Atlanta Hawks", wins:32, losses:38, pct:0.457, gb:20, streak:"W1", last10:"4-6" },
+  { rank:1, conference:"West", team:"Denver Nuggets", wins:49, losses:21, pct:0.700, gb:0, streak:"W2", last10:"7-3" },
+  { rank:2, conference:"West", team:"Oklahoma City Thunder", wins:48, losses:22, pct:0.686, gb:1, streak:"W1", last10:"8-2" },
+  { rank:3, conference:"West", team:"Minnesota Timberwolves", wins:47, losses:23, pct:0.671, gb:2, streak:"L1", last10:"6-4" },
+  { rank:4, conference:"West", team:"Los Angeles Clippers", wins:45, losses:25, pct:0.643, gb:4, streak:"W3", last10:"7-3" },
+  { rank:5, conference:"West", team:"Phoenix Suns", wins:43, losses:27, pct:0.614, gb:6, streak:"W1", last10:"6-4" },
+  { rank:6, conference:"West", team:"Dallas Mavericks", wins:42, losses:28, pct:0.600, gb:7, streak:"W2", last10:"7-3" },
+  { rank:7, conference:"West", team:"Sacramento Kings", wins:39, losses:31, pct:0.557, gb:10, streak:"L2", last10:"4-6" },
+  { rank:8, conference:"West", team:"Golden State Warriors", wins:37, losses:33, pct:0.529, gb:12, streak:"W1", last10:"5-5" },
+  { rank:9, conference:"West", team:"Los Angeles Lakers", wins:36, losses:34, pct:0.514, gb:13, streak:"W2", last10:"6-4" },
+  { rank:10, conference:"West", team:"Memphis Grizzlies", wins:34, losses:36, pct:0.486, gb:15, streak:"L1", last10:"5-5" },
+]
+export default standings
