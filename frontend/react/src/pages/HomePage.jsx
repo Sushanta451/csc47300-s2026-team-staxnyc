@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllPlayers } from '../lib/api'
-import players as mockPlayers from '../data/players'
+import mockPlayers from '../data/players'
 
 export default function HomePage() {
   const [players, setPlayers] = useState([])
@@ -11,7 +11,6 @@ export default function HomePage() {
   const formRef = useRef(null)
   const navigate = useNavigate()
 
-  // Load players from Supabase on mount
   useEffect(() => {
     async function load() {
       try {
@@ -24,7 +23,6 @@ export default function HomePage() {
     load()
   }, [])
 
-  // Search suggestions
   useEffect(() => {
     if (!query.trim()) { setSuggestions([]); return }
     const q = query.trim().toLowerCase()
@@ -50,7 +48,6 @@ export default function HomePage() {
   function getPlayerTeam(p) { return p.team }
   function getPlayerPosition(p) { return p.position }
   function getPlayerImage(p) {
-    // match Supabase player_id to local image
     const mock = mockPlayers.find(m => m.id === getPlayerId(p))
     return mock?.image || p.image || ''
   }
@@ -60,7 +57,7 @@ export default function HomePage() {
     const q = query.trim().toLowerCase()
     const found = players.find(p => getPlayerName(p).toLowerCase() === q)
     if (found) {
-      navigate(`/player/${getPlayerId(found)}`)
+      navigate('/player/' + getPlayerId(found))
     } else {
       setMessage('Player not found. Try selecting a suggested player.')
       setSuggestions([])
@@ -73,38 +70,34 @@ export default function HomePage() {
         <div className="hero-card">
           <h1>NBA Player Performance Predictor</h1>
           <p>Browse player profiles and mock prediction pages.</p>
-
           <form className="search" ref={formRef} onSubmit={handleSubmit}>
             <div className="search-box">
-              <span className="search-icon">🔎</span>
+              <span className="search-icon">Search</span>
               <input
                 className="search-input"
                 type="text"
-                placeholder="Search players (e.g., LeBron James, Kyrie Irving)…"
+                placeholder="Search players..."
                 autoComplete="off"
                 value={query}
                 onChange={e => { setQuery(e.target.value); setMessage('') }}
               />
               <button className="search-btn" type="submit">Search</button>
             </div>
-
             {suggestions.length > 0 && (
               <div className="suggestions">
                 {suggestions.map(p => (
                   <div key={getPlayerId(p)} className="suggestion-item"
-                    onClick={() => { setSuggestions([]); navigate(`/player/${getPlayerId(p)}`) }}>
+                    onClick={() => { setSuggestions([]); navigate('/player/' + getPlayerId(p)) }}>
                     {getPlayerName(p)}
                   </div>
                 ))}
               </div>
             )}
-
             <p className="search-hint">Search for a featured player to open their prediction page.</p>
             {message && <p className="search-message">{message}</p>}
           </form>
         </div>
       </section>
-
       <section id="players" className="players-section">
         <h2 className="section-title-home">Featured Players</h2>
         <div className="player-grid">
@@ -115,10 +108,10 @@ export default function HomePage() {
               </div>
               <div className="player-content">
                 <h3>{getPlayerName(player)}</h3>
-                <p>{getPlayerTeam(player)} • {getPlayerPosition(player)}</p>
+                <p>{getPlayerTeam(player)} - {getPlayerPosition(player)}</p>
                 <div className="btn-row">
                   <button className="btn primary"
-                    onClick={() => navigate(`/player/${getPlayerId(player)}`)}>
+                    onClick={() => navigate('/player/' + getPlayerId(player))}>
                     View Profile
                   </button>
                 </div>
@@ -127,8 +120,7 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      <footer className="footer">StaxNYC Predictor • Player Search Feature</footer>
+      <footer className="footer">StaxNYC Predictor - Player Search Feature</footer>
     </main>
   )
 }
