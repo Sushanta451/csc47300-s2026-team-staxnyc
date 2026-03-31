@@ -4,7 +4,10 @@
     "outDir": "./js",
     "rootDir": "./ts",
     "strict": false,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "jsxFragmentFactory": "React.Fragment"
   },
-  "include": ["ts/**/*.ts"]
+  "include": ["ts/**/*"]
 }

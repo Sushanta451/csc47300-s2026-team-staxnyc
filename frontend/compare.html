@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Player Profile | NBA Predictor</title>
+  <title>Compare Players | StaxNYC Predictor</title>
 
   <!-- Google Font (Inter) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,7 +14,7 @@
   />
 
   <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/player.css" />
+  <link rel="stylesheet" href="css/compare.css" />
 </head>
 <body>
   <header class="navbar">
@@ -26,17 +26,22 @@
 
       <nav class="nav-links" aria-label="Main navigation">
         <a href="home.html">Home</a>
-        <a href="home.html#players" class="active">Players</a>
+        <a href="home.html#players">Players</a>
         <a href="standings.html">Standings</a>
-        <a href="compare.html">Compare</a>
+        <a href="compare.html" class="active">Compare</a>
       </nav>
     </div>
   </header>
 
-  <main class="container" id="player-content">
-    <p style="color: var(--muted); padding: 4rem 0; text-align: center;">Loading player data…</p>
+  <main class="container">
+    <div id="compare-root"></div>
   </main>
 
-  <script src="js/player.js"></script>
+  <!-- React UMD (for this page's React root only) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+  <script type="module" src="js/compare-react.js"></script>
 </body>
 </html>
+
