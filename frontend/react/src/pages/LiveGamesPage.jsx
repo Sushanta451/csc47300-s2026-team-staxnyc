@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
+function formatGameTime(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+}
+
 function GameCard({ game }) {
   const status = (game.status || '').toLowerCase()
   const isLive = status === 'live'
@@ -23,6 +29,11 @@ function GameCard({ game }) {
             {game.quarter} {game.time_remaining}
           </span>
         )}
+        {isScheduled && game.game_date && (
+          <span style={{fontSize:'0.8rem',color:'var(--muted)',fontWeight:600}}>
+            {formatGameTime(game.game_date)}
+          </span>
+        )}
       </div>
 
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'1rem'}}>
@@ -32,7 +43,7 @@ function GameCard({ game }) {
         </div>
 
         <div style={{textAlign:'center',padding:'0 0.5rem'}}>
-          <p style={{fontSize:'1.2rem',color:'var(--muted)'}}>@</p>
+          <p style={{fontSize:'1.2rem',color:'var(--muted)',fontWeight:700}}>vs</p>
         </div>
 
         <div style={{flex:1,textAlign:'center'}}>
