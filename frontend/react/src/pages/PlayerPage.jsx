@@ -1,34 +1,36 @@
 import { useParams, Link } from 'react-router-dom'
-import { useEffect } from 'react'
-import players from '../data/players'
+import { useEffect, useState } from 'react'
+import { getPlayerById, getPlayerGames } from '../lib/api'
+import players from '../data/players' // fallback for images/tags/prediction
 
-// ── Stat change badge ──────────────────────────────────────
 function StatChange({ change }) {
+  if (!change) return null
   if (typeof change === 'object') {
     return <p className={`stat-change${change.down ? ' down' : ''}`}>{change.text}</p>
   }
   return <p className="stat-change">{change}</p>
 }
 
-// ── Bar chart ──────────────────────────────────────────────
-function PointsChart({ chartPoints, avgPoints }) {
-  const maxPts = Math.max(...chartPoints)
+function PointsChart({ games, avgPoints }) {
+  if (!games || games.length === 0) return null
+  const pts = games.map(g => g.pts).filter(Boolean)
+  const maxPts = Math.max(...pts)
   return (
     <article className="card section-card">
       <div className="section-header">
         <div>
           <h2 className="section-title">Recent Points Trend</h2>
-          <p className="section-note">Last 10 games (mock data for design preview)</p>
+          <p className="section-note">Last {pts.length} games</p>
         </div>
         <span className="pill">Avg {avgPoints}</span>
       </div>
       <div className="chart" aria-label="Recent points trend chart">
-        {chartPoints.map((pts, i) => {
-          const pct = Math.round((pts / maxPts) * 100)
+        {games.slice(0, 10).map((g, i) => {
+          const pct = Math.round(((g.pts || 0) / maxPts) * 100)
           return (
             <div key={i} className="bar-wrap">
               <div className="bar" style={{ height: `${pct}%` }} />
-              <div className="bar-value">{pts}</div>
+              <div className="bar-value">{g.pts}</div>
               <div className="bar-label">G{i + 1}</div>
             </div>
           )
@@ -38,18 +40,18 @@ function PointsChart({ chartPoints, avgPoints }) {
   )
 }
 
-// ── Game log table ─────────────────────────────────────────
 function GameLog({ games }) {
+  if (!games || games.length === 0) return null
   return (
     <article className="card section-card">
       <div className="section-header">
         <div>
           <h2 className="section-title">Recent Games</h2>
-          <p className="section-note">Last 5 games</p>
+          <p className="section-note">Last {games.length} games</p>
         </div>
       </div>
       <div className="table-wrap">
-        <table aria-label="Recent games table">
+        <table>
           <thead>
             <tr>
               <th>Date</th><th>Opp</th><th>PTS</th>
@@ -59,8 +61,8 @@ function GameLog({ games }) {
           <tbody>
             {games.map((g, i) => (
               <tr key={i}>
-                <td>{g.date}</td>
-                <td>{g.opp}</td>
+                <td>{g.game_date}</td>
+                <td>{g.opponent}</td>
                 <td>{g.pts}</td>
                 <td>{g.reb}</td>
                 <td>{g.ast}</td>
@@ -74,58 +76,105 @@ function GameLog({ games }) {
   )
 }
 
-// ── Main PlayerPage ────────────────────────────────────────
 export default function PlayerPage() {
   const { id } = useParams()
-  const p = players.find(pl => pl.id === id)
+  const [playerData, setPlayerData] = useState(null)
+  const [games, setGames] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Update browser tab title
+  // Get static data (images, tags, prediction) from local file as fallback
+  const staticData = players.find(p => p.id === id)
+
   useEffect(() => {
-    if (p) document.title = `${p.name} | Player Profile | NBA Predictor`
-    return () => { document.title = 'StaxNYC Predictor' }
-  }, [p])
+    async function load() {
+      try {
+        const [stats, gameLog] = await Promise.all([
+          getPlayerById(id),
+          getPlayerGames(id)
+        ])
+        setPlayerData(stats)
+        setGames(gameLog)
+      } catch (err) {
+        console.error('Supabase error:', err)
+        // Fall back to mock data if Supabase fails
+        if (staticData) setPlayerData(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [id])
 
-  if (!p) {
-    return (
-      <main className="container">
-        <p style={{ color: 'var(--muted)', padding: '4rem 0', textAlign: 'center' }}>
-          Player not found. <Link to="/" style={{ color: 'var(--accent)' }}>Go home</Link>
-        </p>
-      </main>
-    )
-  }
+  useEffect(() => {
+    const name = playerData?.player_name || staticData?.name
+    if (name) document.title = `${name} | Player Profile | NBA Predictor`
+    return () => { document.title = 'StaxNYC Predictor' }
+  }, [playerData, staticData])
+
+  if (loading) return (
+    <main className="container">
+      <p style={{ color: 'var(--muted)', padding: '4rem 0', textAlign: 'center' }}>Loading player data…</p>
+    </main>
+  )
+
+  // Use Supabase data if available, otherwise fall back to mock
+  const p = playerData ? {
+    name: playerData.player_name,
+    team: playerData.team,
+    position: playerData.position,
+    age: staticData?.age || '—',
+    height: playerData.height,
+    weight: playerData.weight,
+    number: playerData.jersey_number,
+    teamColor: staticData?.teamColor || '#5b8cff',
+    teamGlow: staticData?.teamGlow || 'rgba(91,140,255,0.75)',
+    image: staticData?.image || '',
+    tags: staticData?.tags || [],
+    stats: {
+      ppg: playerData.ppg,
+      rpg: playerData.rpg,
+      apg: playerData.apg,
+      fgp: playerData.fg_pct ? `${playerData.fg_pct}%` : '—'
+    },
+    statChanges: staticData?.statChanges || {},
+    prediction: staticData?.prediction || { points: null, range: '—', confidence: 0 },
+    context: staticData?.context || [],
+    avgPoints: playerData.ppg,
+    conference: 'Western',
+  } : staticData
+
+  if (!p) return (
+    <main className="container">
+      <p style={{ color: 'var(--muted)', padding: '4rem 0', textAlign: 'center' }}>
+        Player not found. <Link to="/" style={{ color: 'var(--accent)' }}>Go home</Link>
+      </p>
+    </main>
+  )
+
+  const gameLog = games.length > 0 ? games : staticData?.games || []
+  const chartGames = games.length > 0 ? games : staticData?.games?.map(g => ({ pts: g.pts })) || []
 
   return (
-    <main className="container" id="player-content">
-      {/* ── Breadcrumb ── */}
+    <main className="container">
       <section className="page-header">
         <p className="breadcrumb">
           Players / {p.conference} Conference / <span>{p.name}</span>
         </p>
       </section>
 
-      {/* ── Profile layout: hero card + side panels ── */}
       <section className="profile-layout">
-
-        {/* Left — hero card */}
         <article className="card player-hero">
           <div className="hero-top" />
           <div className="hero-body">
             <div className="player-main">
-              {/* Avatar */}
               <div className="player-avatar">
                 <img src={p.image} alt={`${p.name} profile picture`} />
               </div>
-
-              {/* Name / team / meta */}
               <div className="player-info">
                 <div className="player-name-row">
                   <h1 className="player-name">{p.name}</h1>
                   <span className="team-pill">
-                    <span
-                      className="team-dot"
-                      style={{ background: p.teamColor, boxShadow: `0 0 12px ${p.teamGlow}` }}
-                    />
+                    <span className="team-dot" style={{ background: p.teamColor, boxShadow: `0 0 12px ${p.teamGlow}` }} />
                     {p.team}
                   </span>
                 </div>
@@ -141,7 +190,6 @@ export default function PlayerPage() {
               </div>
             </div>
 
-            {/* Stats row */}
             <div className="stats-grid">
               {[
                 { label: 'PPG', key: 'ppg', val: p.stats.ppg },
@@ -159,7 +207,6 @@ export default function PlayerPage() {
           </div>
         </article>
 
-        {/* Right — prediction + context */}
         <aside className="side-stack">
           <section className="card panel prediction-card">
             <h3>Next Game Prediction</h3>
@@ -173,7 +220,7 @@ export default function PlayerPage() {
                 <span>Model Confidence</span>
                 <span>{p.prediction.confidence}%</span>
               </div>
-              <div className="progress" aria-label="Model confidence progress bar">
+              <div className="progress">
                 <div className="progress-bar" style={{ width: `${p.prediction.confidence}%` }} />
               </div>
             </div>
@@ -196,10 +243,9 @@ export default function PlayerPage() {
         </aside>
       </section>
 
-      {/* ── Lower section: chart + game log ── */}
       <section className="lower-grid">
-        <PointsChart chartPoints={p.chartPoints} avgPoints={p.avgPoints} />
-        <GameLog games={p.games} />
+        <PointsChart games={chartGames} avgPoints={p.avgPoints} />
+        <GameLog games={gameLog} />
       </section>
 
       <footer className="footer">{p.name} Player Prediction Page</footer>

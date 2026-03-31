@@ -1,39 +1,40 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import players from '../data/players'
+import { getAllPlayers } from '../lib/api'
+import players as mockPlayers from '../data/players'
 
 export default function HomePage() {
+  const [players, setPlayers] = useState([])
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [message, setMessage] = useState('')
   const formRef = useRef(null)
   const navigate = useNavigate()
 
-  // Build suggestions as user types — same logic as search.js
+  // Load players from Supabase on mount
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getAllPlayers()
+        setPlayers(data.length ? data : mockPlayers)
+      } catch {
+        setPlayers(mockPlayers)
+      }
+    }
+    load()
+  }, [])
+
+  // Search suggestions
   useEffect(() => {
     if (!query.trim()) { setSuggestions([]); return }
-
     const q = query.trim().toLowerCase()
-    let matches = players.filter(p => p.name.toLowerCase().includes(q))
-
-    matches.sort((a, b) => {
-      const aName = a.name.toLowerCase()
-      const bName = b.name.toLowerCase()
-      const aStarts = aName.startsWith(q)
-      const bStarts = bName.startsWith(q)
-      const aFirst = aName.split(' ')[0].startsWith(q)
-      const bFirst = bName.split(' ')[0].startsWith(q)
-      if (aStarts && !bStarts) return -1
-      if (!aStarts && bStarts) return 1
-      if (aFirst && !bFirst) return -1
-      if (!aFirst && bFirst) return 1
-      return aName.indexOf(q) - bName.indexOf(q)
+    const matches = players.filter(p => {
+      const name = p.player_name || p.name || ''
+      return name.toLowerCase().includes(q)
     })
-
     setSuggestions(matches)
-  }, [query])
+  }, [query, players])
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     function handleClick(e) {
       if (formRef.current && !formRef.current.contains(e.target)) {
@@ -44,40 +45,38 @@ export default function HomePage() {
     return () => document.removeEventListener('click', handleClick)
   }, [])
 
+  function getPlayerId(p) { return p.player_id || p.id }
+  function getPlayerName(p) { return p.player_name || p.name }
+  function getPlayerTeam(p) { return p.team }
+  function getPlayerPosition(p) { return p.position }
+  function getPlayerImage(p) {
+    // match Supabase player_id to local image
+    const mock = mockPlayers.find(m => m.id === getPlayerId(p))
+    return mock?.image || p.image || ''
+  }
+
   function handleSubmit(e) {
     e.preventDefault()
     const q = query.trim().toLowerCase()
-    const found = players.find(p => p.name.toLowerCase() === q)
+    const found = players.find(p => getPlayerName(p).toLowerCase() === q)
     if (found) {
-      navigate(`/player/${found.id}`)
+      navigate(`/player/${getPlayerId(found)}`)
     } else {
       setMessage('Player not found. Try selecting a suggested player.')
       setSuggestions([])
     }
   }
 
-  function handleSuggestionClick(player) {
-    setSuggestions([])
-    setMessage('')
-    navigate(`/player/${player.id}`)
-  }
-
   return (
     <main className="container">
-      {/* ── Hero / Search ── */}
       <section className="hero">
         <div className="hero-card">
           <h1>NBA Player Performance Predictor</h1>
           <p>Browse player profiles and mock prediction pages.</p>
 
-          <form
-            className="search"
-            ref={formRef}
-            onSubmit={handleSubmit}
-            aria-label="Player search form"
-          >
+          <form className="search" ref={formRef} onSubmit={handleSubmit}>
             <div className="search-box">
-              <span className="search-icon" aria-hidden="true">🔎</span>
+              <span className="search-icon">🔎</span>
               <input
                 className="search-input"
                 type="text"
@@ -89,16 +88,12 @@ export default function HomePage() {
               <button className="search-btn" type="submit">Search</button>
             </div>
 
-            {/* Suggestions dropdown */}
             {suggestions.length > 0 && (
               <div className="suggestions">
                 {suggestions.map(p => (
-                  <div
-                    key={p.id}
-                    className="suggestion-item"
-                    onClick={() => handleSuggestionClick(p)}
-                  >
-                    {p.name}
+                  <div key={getPlayerId(p)} className="suggestion-item"
+                    onClick={() => { setSuggestions([]); navigate(`/player/${getPlayerId(p)}`) }}>
+                    {getPlayerName(p)}
                   </div>
                 ))}
               </div>
@@ -110,27 +105,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Featured Players ── */}
       <section id="players" className="players-section">
         <h2 className="section-title-home">Featured Players</h2>
-
         <div className="player-grid">
           {players.map(player => (
-            <article key={player.id} className="player-card">
+            <article key={getPlayerId(player)} className="player-card">
               <div className="player-image">
-                <img src={player.image} alt={player.name} />
+                <img src={getPlayerImage(player)} alt={getPlayerName(player)} />
               </div>
               <div className="player-content">
-                <h3>{player.name}</h3>
-                <p>{player.team} • {player.position}</p>
+                <h3>{getPlayerName(player)}</h3>
+                <p>{getPlayerTeam(player)} • {getPlayerPosition(player)}</p>
                 <div className="btn-row">
-                  <a
-                    className="btn primary"
-                    href={`/player/${player.id}`}
-                    onClick={e => { e.preventDefault(); navigate(`/player/${player.id}`) }}
-                  >
+                  <button className="btn primary"
+                    onClick={() => navigate(`/player/${getPlayerId(player)}`)}>
                     View Profile
-                  </a>
+                  </button>
                 </div>
               </div>
             </article>
