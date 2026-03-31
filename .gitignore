@@ -1,5 +1,7 @@
 node_modules/
 .env
+frontend/js/config.js
+frontend/react/.env
 .DS_Store
 *.log
 dist/
