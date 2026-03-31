@@ -1,164 +1,362 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
+import './ComparePage.css'
 
-function PlayerSlot({ player, onRemove, onSearch }) {
+const STAT_KEYS = ['ppg', 'rpg', 'apg', 'fg_pct']
+
+function statLabel(key) {
+  if (key === 'ppg') return 'PPG'
+  if (key === 'rpg') return 'RPG'
+  if (key === 'apg') return 'APG'
+  return 'FG%'
+}
+
+function statTooltip(key) {
+  if (key === 'ppg') return 'Points per game'
+  if (key === 'rpg') return 'Rebounds per game'
+  if (key === 'apg') return 'Assists per game'
+  return 'Field goal percentage'
+}
+
+function formatStat(key, value) {
+  if (key === 'fg_pct') return value + '%'
+  return value
+}
+
+function normalizeHex(hex) {
+  if (!hex || typeof hex !== 'string') return '#5b8cff'
+  const h = hex.trim()
+  if (/^#[0-9A-Fa-f]{6}$/.test(h)) return h
+  if (/^#[0-9A-Fa-f]{3}$/.test(h)) {
+    return '#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3]
+  }
+  return '#5b8cff'
+}
+
+function radarPoint(cx, cy, radius, angle, norm) {
+  return {
+    x: cx + radius * norm * Math.cos(angle),
+    y: cy + radius * norm * Math.sin(angle),
+  }
+}
+
+/* ─── Radar Chart Component ─── */
+function MultiStatRadar({ series, axisLabels, axisTooltips, emptyMessage }) {
+  const size = 300
+  const pad = 44
+  const cx = size / 2
+  const cy = size / 2
+  const R = size / 2 - pad
+  const n = STAT_KEYS.length
+  const rings = [0.33, 0.66, 1]
+
+  // Grid polygons
+  const gridPolys = rings.map((rr, idx) => {
+    const pts = []
+    for (let i = 0; i < n; i++) {
+      const angle = -Math.PI / 2 + (2 * Math.PI * i) / n
+      const pt = radarPoint(cx, cy, R, angle, rr)
+      pts.push(pt.x.toFixed(2) + ',' + pt.y.toFixed(2))
+    }
+    return <polygon key={'grid-' + idx} points={pts.join(' ')} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+  })
+
+  // Axis lines
+  const axisLines = []
+  for (let i = 0; i < n; i++) {
+    const angle = -Math.PI / 2 + (2 * Math.PI * i) / n
+    const outer = radarPoint(cx, cy, R, angle, 1)
+    axisLines.push(<line key={'axis-' + i} x1={cx} y1={cy} x2={outer.x} y2={outer.y} stroke="rgba(255,255,255,0.12)" strokeWidth={1} />)
+  }
+
+  // Axis labels
+  const labelEls = []
+  const labelR = R + 16
+  for (let i = 0; i < n; i++) {
+    const angle = -Math.PI / 2 + (2 * Math.PI * i) / n
+    const pt = radarPoint(cx, cy, labelR, angle, 1)
+    labelEls.push(
+      <text key={'lbl-' + i} x={pt.x} y={pt.y} textAnchor="middle" dominantBaseline="middle" fill="var(--muted)" fontSize={11} fontWeight={700} style={{ pointerEvents: 'none', userSelect: 'none' }}>
+        <title>{axisTooltips[i]}</title>
+        {axisLabels[i]}
+      </text>
+    )
+  }
+
+  // Player polygons (visible only)
+  const drawn = series.filter(s => s.visible && s.normValues && s.normValues.length === n)
+  drawn.sort((a, b) => {
+    const sumA = a.normValues.reduce((s, v) => s + (v || 0), 0)
+    const sumB = b.normValues.reduce((s, v) => s + (v || 0), 0)
+    return sumA - sumB
+  })
+
+  const playerPolys = drawn.map(ser => {
+    const pts = []
+    for (let i = 0; i < n; i++) {
+      const angle = -Math.PI / 2 + (2 * Math.PI * i) / n
+      const nv = Math.max(0, Math.min(1, ser.normValues[i] || 0))
+      const pt = radarPoint(cx, cy, R, angle, nv)
+      pts.push(pt.x.toFixed(2) + ',' + pt.y.toFixed(2))
+    }
+    return (
+      <polygon key={'player-' + ser.playerId} points={pts.join(' ')} fill={ser.color} fillOpacity={0.22} stroke={ser.color} strokeWidth={2.5} strokeLinejoin="round">
+        <title>{ser.name}</title>
+      </polygon>
+    )
+  })
+
+  return (
+    <div className="radar-wrap radar-wrap--hero">
+      {emptyMessage && drawn.length === 0 && <p className="radar-empty-hint">{emptyMessage}</p>}
+      <svg className="radar-svg radar-svg--hero" width={size} height={size} viewBox={'0 0 ' + size + ' ' + size} role="img" aria-label="Radar chart comparing players">
+        {gridPolys}
+        {axisLines}
+        {playerPolys}
+        {labelEls}
+      </svg>
+    </div>
+  )
+}
+
+/* ─── Main Compare Page ─── */
+export default function ComparePage() {
+  const [cards, setCards] = useState([])       // [{ slotId, player }]
+  const [nextSlotId, setNextSlotId] = useState(1)
+  const [justAddedSlotId, setJustAddedSlotId] = useState(null)
+
+  const [isPickerOpen, setIsPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
 
-  useEffect(() => {
-    if (!query.trim()) { setResults([]); return }
+  const [chartVisible, setChartVisible] = useState({})   // { playerId: bool }
+  const [playerColors, setPlayerColors] = useState({})    // { playerId: hex }
+
+  // Search Supabase for players
+  function handleSearch(q) {
+    setQuery(q)
+    if (!q.trim()) { setResults([]); return }
     const timer = setTimeout(async () => {
       const { data } = await supabase
         .from('player_stats')
         .select('player_id,player_name,team')
-        .ilike('player_name', '*' + query.trim() + '*')
-        .limit(5)
+        .ilike('player_name', '*' + q.trim() + '*')
+        .limit(12)
       if (data) setResults(data)
     }, 300)
     return () => clearTimeout(timer)
-  }, [query])
-
-  if (player) {
-    return (
-      <div className="card" style={{padding:'1.2rem',flex:1,minWidth:'280px'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1rem'}}>
-          <div>
-            <h3 style={{fontSize:'1.2rem',fontWeight:800}}>{player.player_name}</h3>
-            <p style={{color:'var(--muted)',fontSize:'0.85rem'}}>{player.team} • {player.position}</p>
-          </div>
-          <button onClick={onRemove} className="btn" style={{fontSize:'0.8rem',padding:'0.4rem 0.7rem'}}>Remove</button>
-        </div>
-        <div className="stats-grid" style={{gridTemplateColumns:'repeat(2, 1fr)',gap:'0.6rem'}}>
-          {[
-            { label: 'PPG', val: player.ppg },
-            { label: 'RPG', val: player.rpg },
-            { label: 'APG', val: player.apg },
-            { label: 'FG%', val: player.fg_pct + '%' },
-          ].map(({ label, val }) => (
-            <div key={label} className="stat-box">
-              <p className="stat-label">{label}</p>
-              <p className="stat-value">{val}</p>
-            </div>
-          ))}
-        </div>
-        <div style={{marginTop:'0.8rem',display:'flex',flexWrap:'wrap',gap:'0.5rem'}}>
-          <span className="pill">Height: {player.height}</span>
-          <span className="pill">Weight: {player.weight} lbs</span>
-          <span className="pill">#{player.jersey_number}</span>
-          <span className="pill">GPG: {player.games_played}</span>
-          <span className="pill">MPG: {player.mpg}</span>
-        </div>
-      </div>
-    )
   }
 
-  return (
-    <div className="card" style={{padding:'1.2rem',flex:1,minWidth:'280px'}}>
-      <p style={{color:'var(--muted)',marginBottom:'0.8rem',fontSize:'0.9rem'}}>Search for a player to compare</p>
-      <div className="search-box" style={{marginTop:0}}>
-        <input
-          className="search-input"
-          type="text"
-          placeholder="Search player..."
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          autoComplete="off"
-        />
-      </div>
-      {results.length > 0 && (
-        <div className="suggestions" style={{marginTop:'0.5rem'}}>
-          {results.map(p => (
-            <div key={p.player_id} className="suggestion-item"
-              onClick={() => { onSearch(p.player_id); setQuery(''); setResults([]) }}>
-              {p.player_name} <span style={{color:'var(--muted)',fontSize:'0.8rem'}}>— {p.team}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
+  // IDs already on the board
+  const usedIds = useMemo(() => {
+    const used = {}
+    cards.forEach(c => { used[c.player.player_id] = true })
+    return used
+  }, [cards])
 
-function StatBar({ label, val1, val2, name1, name2 }) {
-  const max = Math.max(val1, val2, 1)
-  const pct1 = Math.round((val1 / max) * 100)
-  const pct2 = Math.round((val2 / max) * 100)
-  const winner1 = val1 > val2
-  const winner2 = val2 > val1
+  // Players on the board
+  const comparedPlayers = useMemo(() => cards.map(c => c.player), [cards])
 
-  return (
-    <div style={{marginBottom:'1rem'}}>
-      <div style={{display:'flex',justifyContent:'space-between',marginBottom:'0.4rem'}}>
-        <span style={{fontWeight: winner1 ? 800 : 400, color: winner1 ? 'var(--success)' : 'var(--text)',fontSize:'0.95rem'}}>{val1}</span>
-        <span style={{color:'var(--muted)',fontSize:'0.85rem',fontWeight:600}}>{label}</span>
-        <span style={{fontWeight: winner2 ? 800 : 400, color: winner2 ? 'var(--success)' : 'var(--text)',fontSize:'0.95rem'}}>{val2}</span>
-      </div>
-      <div style={{display:'flex',gap:'0.3rem',height:'8px'}}>
-        <div style={{flex:1,borderRadius:'4px',background:'rgba(255,255,255,0.08)',overflow:'hidden',display:'flex',justifyContent:'flex-end'}}>
-          <div style={{width: pct1 + '%',background: winner1 ? 'var(--success)' : 'var(--accent)',borderRadius:'4px',transition:'width 0.3s ease'}} />
-        </div>
-        <div style={{flex:1,borderRadius:'4px',background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
-          <div style={{width: pct2 + '%',background: winner2 ? 'var(--success)' : 'var(--accent)',borderRadius:'4px',transition:'width 0.3s ease'}} />
-        </div>
-      </div>
-    </div>
-  )
-}
+  // Visible players (on chart checkbox)
+  const visiblePlayers = useMemo(() => {
+    return comparedPlayers.filter(p => chartVisible[p.player_id] !== false)
+  }, [comparedPlayers, chartVisible])
 
-export default function ComparePage() {
-  const [player1, setPlayer1] = useState(null)
-  const [player2, setPlayer2] = useState(null)
+  // Radar series
+  const radarSeries = useMemo(() => {
+    const scaleGroup = visiblePlayers.length > 0 ? visiblePlayers : comparedPlayers
+    return comparedPlayers.map(p => {
+      const norms = STAT_KEYS.map(key => {
+        const val = parseFloat(p[key]) || 0
+        let max = 0
+        scaleGroup.forEach(sp => {
+          const sv = parseFloat(sp[key]) || 0
+          if (sv > max) max = sv
+        })
+        if (max === 0) max = 1
+        return val / max
+      })
+      return {
+        playerId: p.player_id,
+        name: p.player_name,
+        normValues: norms,
+        color: playerColors[p.player_id] || '#5b8cff',
+        visible: chartVisible[p.player_id] !== false,
+      }
+    })
+  }, [comparedPlayers, visiblePlayers, chartVisible, playerColors])
 
-  async function loadPlayer(id, setFn) {
+  const axisLabels = useMemo(() => STAT_KEYS.map(statLabel), [])
+  const axisTooltips = useMemo(() => STAT_KEYS.map(statTooltip), [])
+
+  async function addPlayer(playerId) {
+    if (usedIds[playerId]) return
+    // Fetch full player data from Supabase
     const { data } = await supabase
       .from('player_stats')
       .select('*')
-      .eq('player_id', id)
+      .eq('player_id', playerId)
       .single()
-    if (data) setFn(data)
+    if (!data) return
+
+    const slotId = nextSlotId
+    setNextSlotId(slotId + 1)
+    setCards(prev => [...prev, { slotId, player: data }])
+    setChartVisible(prev => ({ ...prev, [playerId]: true }))
+    setPlayerColors(prev => ({ ...prev, [playerId]: '#5b8cff' }))
+    setJustAddedSlotId(slotId)
+    setTimeout(() => setJustAddedSlotId(null), 350)
+    setIsPickerOpen(false)
+    setQuery('')
+    setResults([])
+  }
+
+  function removePlayer(playerId) {
+    setCards(prev => prev.filter(c => c.player.player_id !== playerId))
+  }
+
+  function toggleChartVisible(playerId) {
+    setChartVisible(prev => ({ ...prev, [playerId]: prev[playerId] === false ? true : false }))
+  }
+
+  function setPlayerColor(playerId, hex) {
+    setPlayerColors(prev => ({ ...prev, [playerId]: normalizeHex(hex) }))
+  }
+
+  function openPicker() {
+    setQuery('')
+    setResults([])
+    setIsPickerOpen(true)
   }
 
   return (
     <main className="container">
       <section className="page-header">
-        <p className="breadcrumb">Tools / <span>Compare Players</span></p>
+        <p className="breadcrumb">Players / <span>Compare</span></p>
       </section>
 
-      <div style={{marginBottom:'1.5rem'}}>
-        <h1 style={{fontSize:'clamp(1.25rem,2.3vw,1.65rem)',fontWeight:800,marginBottom:'0.3rem'}}>Compare Players</h1>
-        <p style={{color:'var(--muted)',fontSize:'0.9rem'}}>Select two players to compare their stats side by side</p>
-      </div>
+      {/* Header */}
+      <section className="card panel compare-header">
+        <div>
+          <h1 className="page-title">Compare Players</h1>
+          <p className="page-subtitle">
+            Add players to see their stats overlaid on one radar chart. Use the color picker and "On chart" toggle to customize.
+          </p>
+        </div>
+      </section>
 
-      <div style={{display:'flex',gap:'1rem',flexWrap:'wrap',marginBottom:'1.5rem'}}>
-        <PlayerSlot
-          player={player1}
-          onRemove={() => setPlayer1(null)}
-          onSearch={id => loadPlayer(id, setPlayer1)}
-        />
-        <PlayerSlot
-          player={player2}
-          onRemove={() => setPlayer2(null)}
-          onSearch={id => loadPlayer(id, setPlayer2)}
-        />
-      </div>
+      {/* Radar Chart */}
+      <section className="card panel radar-chart-panel">
+        <div className="radar-chart-heading">
+          <h2 className="radar-chart-title">Comparison Radar</h2>
+          <p className="radar-chart-sub">PPG &middot; RPG &middot; APG &middot; FG%</p>
+        </div>
+        {comparedPlayers.length === 0 ? (
+          <p className="radar-empty-hint radar-empty-hint--solo">Add players below to see overlapping radars.</p>
+        ) : (
+          <MultiStatRadar
+            series={radarSeries}
+            axisLabels={axisLabels}
+            axisTooltips={axisTooltips}
+            emptyMessage={visiblePlayers.length === 0 ? 'Turn on "On chart" for at least one player.' : undefined}
+          />
+        )}
+      </section>
 
-      {player1 && player2 && (
-        <section className="card" style={{padding:'1.5rem',marginBottom:'1.5rem'}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:'1.2rem'}}>
-            <h2 style={{fontSize:'1rem',fontWeight:700}}>{player1.player_name}</h2>
-            <span style={{color:'var(--muted)',fontSize:'0.9rem',fontWeight:600}}>Head to Head</span>
-            <h2 style={{fontSize:'1rem',fontWeight:700}}>{player2.player_name}</h2>
+      {/* Player Cards Row */}
+      <section className="compare-row">
+        {cards.map(c => {
+          const p = c.player
+          const enterClass = justAddedSlotId === c.slotId ? ' card-enter' : ''
+          const onChart = chartVisible[p.player_id] !== false
+          const cardColor = normalizeHex(playerColors[p.player_id])
+
+          return (
+            <section className={'card panel compare-card' + enterClass} key={'slot-' + c.slotId}>
+              <label className="compare-chart-toggle">
+                <input type="checkbox" checked={onChart} onChange={() => toggleChartVisible(p.player_id)} />
+                <span>On chart</span>
+              </label>
+              <div className="compare-color-row">
+                <label className="compare-color-label">Color</label>
+                <input className="compare-color-input" type="color" value={cardColor} onChange={e => setPlayerColor(p.player_id, e.target.value)} />
+                <button type="button" className="compare-color-reset" onClick={() => setPlayerColor(p.player_id, '#5b8cff')}>Reset</button>
+              </div>
+              <div className="compare-card-color" style={{ background: cardColor, boxShadow: '0 0 12px ' + cardColor + '99' }} />
+              <div className="compare-card-body">
+                <div className="player-name compare-name-sm">{p.player_name}</div>
+                <div className="player-sub compare-sub-sm">{p.team} &middot; {p.position}</div>
+                <div className="compare-stat-line">
+                  {STAT_KEYS.map((sk, i) => (
+                    <span key={sk}>
+                      <span className="compare-stat-k">{statLabel(sk)}</span>{' '}
+                      <span className="compare-stat-v">{formatStat(sk, p[sk])}</span>
+                      {i < STAT_KEYS.length - 1 && <span className="compare-stat-sep">|</span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <button type="button" className="compare-remove-btn" onClick={() => removePlayer(p.player_id)} title="Remove player">&times;</button>
+            </section>
+          )
+        })}
+
+        {/* Add Player Button */}
+        <button type="button" className="card panel add-card" onClick={openPicker}>
+          <span className="plus">+</span>
+          <span className="add-label">Add player</span>
+          <span className="add-hint">Search &amp; compare stats</span>
+        </button>
+      </section>
+
+      {/* Modal Picker */}
+      {isPickerOpen && (
+        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setIsPickerOpen(false) }}>
+          <div className="modal card panel">
+            <div className="modal-header">
+              <div>
+                <div className="modal-title">Add a player</div>
+                <div className="modal-sub">Type a name, then pick a result to add.</div>
+              </div>
+              <button type="button" className="modal-close" onClick={() => setIsPickerOpen(false)}>&times;</button>
+            </div>
+
+            <input
+              className="search-input"
+              value={query}
+              onChange={e => handleSearch(e.target.value)}
+              placeholder="Search players..."
+              autoFocus
+            />
+
+            <div className="results">
+              {!query.trim() ? (
+                <p className="results-hint">Type to search players...</p>
+              ) : results.length === 0 ? (
+                <p className="results-hint">No matches found.</p>
+              ) : (
+                results.map(p => {
+                  const disabled = !!usedIds[p.player_id]
+                  return (
+                    <button
+                      key={p.player_id}
+                      type="button"
+                      className={'result-item' + (disabled ? ' disabled' : '')}
+                      onClick={() => addPlayer(p.player_id)}
+                      disabled={disabled}
+                    >
+                      <span className="result-name">{p.player_name}</span>
+                      <span className="result-sub">{p.team}</span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
           </div>
-          <StatBar label="PPG" val1={player1.ppg} val2={player2.ppg} />
-          <StatBar label="RPG" val1={player1.rpg} val2={player2.rpg} />
-          <StatBar label="APG" val1={player1.apg} val2={player2.apg} />
-          <StatBar label="FG%" val1={player1.fg_pct} val2={player2.fg_pct} />
-          <StatBar label="MPG" val1={player1.mpg} val2={player2.mpg} />
-          <StatBar label="Games" val1={player1.games_played} val2={player2.games_played} />
-        </section>
+        </div>
       )}
 
-      <footer className="footer">StaxNYC Predictor - Compare Players</footer>
+      <footer className="footer">StaxNYC Predictor &bull; Compare Players</footer>
     </main>
   )
 }
